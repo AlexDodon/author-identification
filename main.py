@@ -47,10 +47,10 @@ ae2 = Autoencoder(
   original_dim=int_dim1
 )
 
-firstCodeTensor = [ae1.encoder(x) for x in training_dataset]
+firstCodeTensor = [ae1.encoder(x) for y in training_dataset for x in y]
 training_dataset2 = tf.data.Dataset.from_tensor_slices(firstCodeTensor)
 training_dataset2 = training_dataset2.batch(batch_size)
-training_dataset2 = training_dataset2.prefetch(batch_size * 4)
+training_dataset2 = training_dataset2.prefetch(batch_size * 8)
 
 print("Autoencoder 2")
 for epoch in range(epochs):
@@ -59,7 +59,7 @@ for epoch in range(epochs):
     loss_values = loss(ae2, batch_features)
     print(" epoch {} step {} loss {}".format(epoch, step, loss_values))
 
-svm_training_dataset = [ae2.encoder(ae1.encoder(x)).numpy() for y in training_dataset for x in y ]
+svm_training_dataset = [ae2.encoder(x).numpy() for x in firstCodeTensor ]
 svm_testing_dataset = [ae2.encoder(ae1.encoder(x)).numpy() for y in testing_dataset for x in y ]
 
 clf = svm.LinearSVC()
